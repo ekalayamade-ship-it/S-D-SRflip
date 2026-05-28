@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Chart Analyzer V3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        h1 { color: #333; margin-bottom: 30px; text-align: center; }
+        .input-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .section { border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #f9f9f9; }
+        .section h2 { color: #667eea; margin-bottom: 20px; font-size: 1.3em; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input[type="file"] { display: block; width: 100%; padding: 10px; border: 1px solid #ddd; }
+        img { max-width: 100%; height: auto; margin-top: 10px; border-radius: 5px; }
+        .slider-container { margin: 15px 0; }
+        .slider-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
+        input[type="range"] { width: 100%; }
+        .slider-value { background: #667eea; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
+        button { background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 30px; }
+        button:hover { background: #45a049; }
+        .results { margin-top: 40px; padding: 30px; background: #fff; border: 2px solid #4CAF50; border-radius: 10px; display: none; }
+        .results.show { display: block; }
+        .score-box { background: #667eea; color: white; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+        .score-value { font-size: 3em; font-weight: bold; margin: 20px 0; }
+        .recommendation { padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .recommendation.excellent { background: #d4edda; border: 1px solid #28a745; color: #155724; }
+        .recommendation.good { background: #fff3cd; border: 1px solid #ffc107; color: #856404; }
+        .recommendation.warning { background: #f8d7da; border: 1px solid #dc3545; color: #721c24; }
+        .recommendation h3 { margin-bottom: 10px; }
+        .details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .detail { background: #f5f5f5; padding: 15px; border-radius: 8px; }
+        .detail-label { font-weight: bold; color: #333; margin-bottom: 5px; }
+        .detail-value { font-size: 1.3em; color: #667eea; font-weight: bold; }
+        .risk-box { background: #fff3cd; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .risk-box h4 { color: #856404; margin-bottom: 10px; }
+        .risk-box ul { margin-left: 20px; }
+        .risk-box li { color: #856404; margin-bottom: 5px; }
+        .formula { background: #e8f4f8; padding: 15px; border-radius: 5px; margin-top: 15px; }
+        .error { color: red; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Trading Chart Analyzer V3.0</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">Fuzzy Logic Scoring (0-1000)</p>
+
+        <div class="input-section">
+            <!-- SR Section -->
+            <div class="section">
+                <h2>📈 Support/Resistance (H4)</h2>
+                
+                <div class="form-group">
+                    <label>Upload Chart H4</label>
+                    <input type="file" id="srImage" accept="image/*">
+                    <img id="srPreview" style="display:none;">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Confirmation Level</span>
+                        <span class="slider-value" id="srConfVal">50%</span>
+                    </div>
+                    <input type="range" id="srConf" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Testing Frequency</span>
+                        <span class="slider-value" id="srFreqVal">50%</span>
+                    </div>
+                    <input type="range" id="srFreq" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Rejection Strength</span>
+                        <span class="slider-value" id="srRejVal">50%</span>
+                    </div>
+                    <input type="range" id="srRej" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Volume Profile</span>
+                        <span class="slider-value" id="srVolVal">50%</span>
+                    </div>
+                    <input type="range" id="srVol" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Wick Formation</span>
+                        <span class="slider-value" id="srWickVal">50%</span>
+                    </div>
+                    <input type="range" id="srWick" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <!-- SD Section -->
+            <div class="section">
+                <h2>🎯 Supply/Demand Fresh Zone</h2>
+                
+                <div class="form-group">
+                    <label>Upload Chart dengan Zones</label>
+                    <input type="file" id="sdImage" accept="image/*">
+                    <img id="sdPreview" style="display:none;">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Zone Clarity</span>
+                        <span class="slider-value" id="sdClrVal">50%</span>
+                    </div>
+                    <input type="range" id="sdClr" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Unmitigated Status</span>
+                        <span class="slider-value" id="sdUnmVal">50%</span>
+                    </div>
+                    <input type="range" id="sdUnm" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Price Proximity</span>
+                        <span class="slider-value" id="sdProxVal">50%</span>
+                    </div>
+                    <input type="range" id="sdProx" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Shape Formation</span>
+                        <span class="slider-value" id="sdShpVal">50%</span>
+                    </div>
+                    <input type="range" id="sdShp" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Volume Rejection</span>
+                        <span class="slider-value" id="sdVolRVal">50%</span>
+                    </div>
+                    <input type="range" id="sdVolR" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Trend Alignment</span>
+                        <span class="slider-value" id="sdTrnVal">50%</span>
+                    </div>
+                    <input type="range" id="sdTrn" min="0" max="100" value="50">
+                </div>
+            </div>
+        </div>
+
+        <button onclick="analyzeNow()">🚀 ANALISIS CHART</button>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <h2 style="color: #333; margin-bottom: 20px;">📊 HASIL ANALISIS</h2>
+            
+            <div class="score-box">
+                <div style="font-size: 0.9em;">Final Score (0-1000)</div>
+                <div class="score-value" id="finalScoreValue">--</div>
+                <div id="scoreLevel" style="font-size: 1.1em;">--</div>
+            </div>
+
+            <div class="recommendation" id="recommendationBox">
+                <h3 id="recTitle">--</h3>
+                <p id="recText">--</p>
+            </div>
+
+            <div class="details">
+                <div class="detail">
+                    <div class="detail-label">SR Score (Max 500)</div>
+                    <div class="detail-value" id="srScoreDisplay">--</div>
+                </div>
+                <div class="detail">
+                    <div class="detail-label">SD Score (Max 500)</div>
+                    <div class="detail-value" id="sdScoreDisplay">--</div>
+                </div>
+            </div>
+
+            <div class="risk-box">
+                <h4>⚠️ Risk Management</h4>
+                <ul>
+                    <li id="risk1">--</li>
+                    <li id="risk2">--</li>
+                    <li id="risk3">--</li>
+                </ul>
+            </div>
+
+            <div class="formula">
+                <strong>Calculation:</strong> (SR × 5) + (SD × 5) = <span id="formulaResult">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update slider displays
+        document.getElementById('srConf').addEventListener('input', function() {
+            document.getElementById('srConfVal').textContent = this.value + '%';
+        });
+        document.getElementById('srFreq').addEventListener('input', function() {
+            document.getElementById('srFreqVal').textContent = this.value + '%';
+        });
+        document.getElementById('srRej').addEventListener('input', function() {
+            document.getElementById('srRejVal').textContent = this.value + '%';
+        });
+        document.getElementById('srVol').addEventListener('input', function() {
+            document.getElementById('srVolVal').textContent = this.value + '%';
+        });
+        document.getElementById('srWick').addEventListener('input', function() {
+            document.getElementById('srWickVal').textContent = this.value + '%';
+        });
+
+        document.getElementById('sdClr').addEventListener('input', function() {
+            document.getElementById('sdClrVal').textContent = this.value + '%';
+        });
+        document.getElementById('sdUnm').addEventListener('input', function() {
+            document.getElementById('sdUnmVal').textContent = this.value + '%';
+        });
+        document.getElementById('sdProx').addEventListener('input', function() {
+            document.getElementById('sdProxVal').textContent = this.value + '%';
+        });
+        document.getElementById('sdShp').addEventListener('input', function() {
+            document.getElementById('sdShpVal').textContent = this.value + '%';
+        });
+        document.getElementById('sdVolR').addEventListener('input', function() {
+            document.getElementById('sdVolRVal').textContent = this.value + '%';
+        });
+        document.getElementById('sdTrn').addEventListener('input', function() {
+            document.getElementById('sdTrnVal').textContent = this.value + '%';
+        });
+
+        // Image preview
+        document.getElementById('srImage').addEventListener('change', function(e) {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('srPreview').src = event.target.result;
+                    document.getElementById('srPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        document.getElementById('sdImage').addEventListener('change', function(e) {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('sdPreview').src = event.target.result;
+                    document.getElementById('sdPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // FUZZY LOGIC
+        function membershipDegree(value, a, b, c) {
+            if (value <= a || value >= c) return 0;
+            if (value <= b) return (value - a) / (b - a);
+            return (c - value) / (c - b);
+        }
+
+        function calculateSR(conf, freq, rej, vol, wick) {
+            // Average of parameters
+            return (conf + freq + rej + vol + wick) / 5;
+        }
+
+        function calculateSD(clr, unm, prox, shp, volr, trn) {
+            // Average of parameters
+            return (clr + unm + prox + shp + volr + trn) / 6;
+        }
+
+        function analyzeNow() {
+            // Check images
+            if (!document.getElementById('srImage').files[0]) {
+                alert('Upload gambar SR terlebih dahulu!');
+                return;
+            }
+            if (!document.getElementById('sdImage').files[0]) {
+                alert('Upload gambar SD terlebih dahulu!');
+                return;
+            }
+
+            // Get slider values
+            const sr_conf = parseFloat(document.getElementById('srConf').value);
+            const sr_freq = parseFloat(document.getElementById('srFreq').value);
+            const sr_rej = parseFloat(document.getElementById('srRej').value);
+            const sr_vol = parseFloat(document.getElementById('srVol').value);
+            const sr_wick = parseFloat(document.getElementById('srWick').value);
+
+            const sd_clr = parseFloat(document.getElementById('sdClr').value);
+            const sd_unm = parseFloat(document.getElementById('sdUnm').value);
+            const sd_prox = parseFloat(document.getElementById('sdProx').value);
+            const sd_shp = parseFloat(document.getElementById('sdShp').value);
+            const sd_volr = parseFloat(document.getElementById('sdVolR').value);
+            const sd_trn = parseFloat(document.getElementById('sdTrn').value);
+
+            // Calculate scores
+            const srScore = calculateSR(sr_conf, sr_freq, sr_rej, sr_vol, sr_wick);
+            const sdScore = calculateSD(sd_clr, sd_unm, sd_prox, sd_shp, sd_volr, sd_trn);
+            const finalScore = (srScore * 5) + (sdScore * 5);
+
+            console.log('SR Score:', srScore);
+            console.log('SD Score:', sdScore);
+            console.log('Final Score:', finalScore);
+
+            // Get recommendation
+            let recTitle, recText, recClass;
+            if (finalScore === 1000) {
+                recTitle = '✅ ENTRY DENGAN LIMIT ORDER';
+                recText = 'Entri dengan limit order, risk 1%-2%';
+                recClass = 'excellent';
+            } else if (finalScore >= 700) {
+                recTitle = '⏳ TUNGGU SETUP KONFIRMASI';
+                recText = 'Tunggu setup konfirmasi sebelum entry';
+                recClass = 'good';
+            } else {
+                recTitle = '❌ BERBAHAYA, JANGAN ENTRY';
+                recText = 'Berbahaya, jangan entry sekarang';
+                recClass = 'warning';
+            }
+
+            // Get score level
+            let scoreLevel;
+            if (finalScore >= 1000) scoreLevel = 'PERFECT ✨ (1000)';
+            else if (finalScore >= 950) scoreLevel = 'EXCELLENT 🌟 (950+)';
+            else if (finalScore >= 900) scoreLevel = 'VERY GOOD 👍 (900+)';
+            else if (finalScore >= 850) scoreLevel = 'GOOD ✓ (850+)';
+            else if (finalScore >= 700) scoreLevel = 'ACCEPTABLE ⏳ (700+)';
+            else if (finalScore >= 500) scoreLevel = 'WEAK ❌ (500+)';
+            else scoreLevel = 'VERY WEAK 🚫 (<500)';
+
+            // Get risk management
+            let risk1, risk2, risk3;
+            if (finalScore >= 1000) {
+                risk1 = 'Risk: 1%-2% dari account';
+                risk2 = 'Use Limit Order, jangan market';
+                risk3 = 'Target RR minimal 1:2';
+            } else if (finalScore >= 700) {
+                risk1 = 'Risk: 1.5%-2% dari account';
+                risk2 = 'Siapkan pending order, tunggu konfirmasi';
+                risk3 = 'Target RR minimal 1:1.5';
+            } else {
+                risk1 = 'Risk: SKIP - Jangan trade';
+                risk2 = 'Continue analisis, tunggu setup lebih baik';
+                risk3 = 'Focus pada risk management';
+            }
+
+            // Update results
+            document.getElementById('finalScoreValue').textContent = Math.round(finalScore);
+            document.getElementById('scoreLevel').textContent = scoreLevel;
+            
+            const recBox = document.getElementById('recommendationBox');
+            recBox.className = 'recommendation ' + recClass;
+            document.getElementById('recTitle').textContent = recTitle;
+            document.getElementById('recText').textContent = recText;
+
+            document.getElementById('srScoreDisplay').textContent = (srScore * 5).toFixed(1) + ' / 500';
+            document.getElementById('sdScoreDisplay').textContent = (sdScore * 5).toFixed(1) + ' / 500';
+
+            document.getElementById('risk1').textContent = risk1;
+            document.getElementById('risk2').textContent = risk2;
+            document.getElementById('risk3').textContent = risk3;
+
+            document.getElementById('formulaResult').textContent = 
+                '(' + srScore.toFixed(1) + ' × 5) + (' + sdScore.toFixed(1) + ' × 5) = ' + Math.round(finalScore);
+
+            // Show results
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"305641585f3841538508659aa3d2ee40","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
